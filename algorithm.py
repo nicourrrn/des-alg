@@ -1,4 +1,22 @@
+import math
+
 import constants
+
+
+def calculate_entropy(data: list[int]) -> float:
+    """Рассчитывает энтропию для списка данных (0 и 1)."""
+    length = len(data)
+    if length == 0:
+        return 0.0
+    count_0 = data.count(0)
+    count_1 = length - count_0
+    p_0 = count_0 / length
+    p_1 = count_1 / length
+    entropy = 0
+    for p in [p_0, p_1]:
+        if p > 0:
+            entropy -= p * math.log2(p)
+    return entropy
 
 
 def F(right: list, round_key: list) -> list:
@@ -45,6 +63,7 @@ def encrypt(data: bytes, key: bytes) -> bytes:
         new_left = right
         right = [left[k] ^ F(right, round_key)[k] for k in range(32)]
         left = new_left
+        print("Entropy: ", calculate_entropy(left + right))
 
     # Кінцева перестановка
     encrypted = right + left
