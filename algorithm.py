@@ -4,7 +4,7 @@ import constants
 
 
 def calculate_entropy(data: list[int]) -> float:
-    """Рассчитывает энтропию для списка данных (0 и 1)."""
+    # Розрахунок етропії для списку даних 0 та 1
     length = len(data)
     if length == 0:
         return 0.0
