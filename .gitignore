@@ -10,3 +10,4 @@ wheels/
 .venv
 ./.ccls-cache/
 
+./main
