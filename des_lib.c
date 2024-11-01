@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define bits28 0xFFFFFFF
 
@@ -268,24 +269,26 @@ uint64_t decrypt(uint64_t data, uint64_t key) {
 
 static PyObject* method_des_encrypt(PyObject* self, PyObject* args) {
     uint64_t key, data;
-    if (!PyArg_ParseTuple(args, "ss", &key, &data)) {
+    if (!PyArg_ParseTuple(args, "KK", &data, &key)) {
         return NULL;
     }
-	
+    printf("Data: %lx, Key: %lx\n", data, key);	
     uint64_t result = encrypt(data, key);
+    printf("Encrypted data: %lx\n", result);
 
-    return PyLong_FromLong(result);
+    return Py_BuildValue("K", result);
 }
 
 static PyObject* method_des_decrypt(PyObject* self, PyObject* args) {
     uint64_t key, data;
-    if (!PyArg_ParseTuple(args, "ss", &key, &data)) {
+    if (!PyArg_ParseTuple(args, "KK", &data, &key)) {
 	return NULL;
     }
-	
-    uint64_t result = decrypt(data, key);
 
-    return PyLong_FromLong(result);
+    uint64_t result = decrypt(data, key);
+    printf("Decrypted data: %lx\n", result);
+
+    return Py_BuildValue("K", result);
 }
 
 
