@@ -58,6 +58,7 @@ def encrypt(data: bytes, key: bytes) -> bytes:
         right_key = shift_left(list(right_key), constants.shifts[i])
         combined_key = left_key + right_key
         round_key = [combined_key[j - 1] for j in constants.PC_2]
+        print("Round key: ", round_key)
 
         # Застосування функції F
         new_left = right
