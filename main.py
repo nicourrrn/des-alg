@@ -1,3 +1,6 @@
+import math
+import string
+
 import des
 from fastapi import FastAPI, Request
 
@@ -53,13 +56,57 @@ async def decrypt(req: Request):
     return {"result": filan_message}
 
 
-async def is_key_weak(key: str) -> bool:
-    return False
+def calculate_entropy(key):
+    """Обчислює ентропію ключа."""
+    charset_size = 0
+    if any(c in string.ascii_lowercase for c in key):
+        charset_size += 26  # малі літери
+    if any(c in string.ascii_uppercase for c in key):
+        charset_size += 26  # великі літери
+    if any(c in string.digits for c in key):
+        charset_size += 10  # цифри
+    if any(c in string.punctuation for c in key):
+        charset_size += len(string.punctuation)  # спеціальні символи
+
+    if charset_size == 0:
+        return 0
+
+    entropy = len(key) * math.log2(charset_size)
+    return entropy
 
 
-@app.post("/check_key")
-async def check_key(key: str):
-    return {"is_weak": await is_key_weak(key)}
+def check_key_strength(key):
+    length = len(key)
+    entropy = calculate_entropy(key)
+    has_upper = any(c.isupper() for c in key)
+    has_lower = any(c.islower() for c in key)
+    has_digit = any(c.isdigit() for c in key)
+    has_special = any(c in string.punctuation for c in key)
+
+    # Оцінка стійкості на основі довжини та різноманітності символів
+    if length < 8 or entropy < 40:
+        return "Низька стійкість"
+    elif (
+        length >= 8
+        and entropy >= 40
+        and (has_upper + has_lower + has_digit + has_special) >= 3
+    ):
+        return "Середня стійкість"
+    elif (
+        length >= 12
+        and entropy >= 60
+        and all([has_upper, has_lower, has_digit, has_special])
+    ):
+        return "Висока стійкість"
+    else:
+        return "Середня стійкість"
+
+
+@app.get("/strench")
+async def is_key_weak(key: str):
+    strength = check_key_strength(key)
+    entropy = calculate_entropy(key)
+    return {"result": strength, "entropy": entropy}
 
 
 if __name__ == "__main__":
